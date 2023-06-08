@@ -1,30 +1,37 @@
-﻿ConsoleKeyInfo key = new();
-CancellationTokenSource cancelSource = new();
-Task watchKeys = Task.Run(() => { WatchKeys(); });
-// int counter = 0;
-
-Console.Clear();
-
-while (true)
+﻿class Program
 {
-    if (key.Key == ConsoleKey.Q)
-    {
-        Console.WriteLine($"actions: {key.Key}");
-    }
-    else
-    {
-        Console.WriteLine("actions: ");
-    }
-    // Console.WriteLine(counter);
-    // counter++;
-    Console.Clear();
-}
+    public static ConsoleKeyInfo key = new();
+    public static int REFRESH_RATE = 16;
+    public static bool gameEnded;
 
-void WatchKeys()
-{
-    do 
+    private static void Main(string[] args)
     {
-        key = Console.ReadKey(true);
-    } while (key.Key != ConsoleKey.Q);
-    cancelSource.Cancel();
+        Console.Clear();
+        var keyThread = new Thread(WatchKeys);
+        keyThread.Start();
+
+        var gameThread = new Thread(GameLoop);
+        gameThread.Start();
+
+
+        void WatchKeys()
+        {
+            while (!gameEnded)
+            {
+                key = Console.ReadKey(true);
+                Thread.Sleep(REFRESH_RATE);
+            }
+        }
+
+        void GameLoop()
+        {
+            while (key.Key != ConsoleKey.Q && !gameEnded)
+            {
+                Console.WriteLine($"action: {key.Key}");
+                Thread.Sleep(REFRESH_RATE);
+                Console.Clear();
+            }
+            Program.gameEnded = true;
+        }
+    }
 }
