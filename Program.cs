@@ -1,29 +1,34 @@
-﻿class Program
+﻿/* 
+ * TODO: Draw the game in full, frame by frame
+ * TODO: Build obstacle inserting mechanism
+ * TODO: Build game end state
+*/
+
+class Program
 {
     private static char m_playerCharacter = '\u2588';
     private static char[] m_playerLine = new[] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
     private static int m_playerPosition = 3;
 
     private static ConsoleKeyInfo Key = new();
-    private static int REFRESH_RATE = 16;
+    private static int REFRESH_RATE = 16; // ~60fps
     private static bool GameEnded;
 
     private static void Main(string[] args)
     {
         int counter = 0;
-        Console.Clear();
-        var LastKeyThread = new Thread(WatchKeys);
-        LastKeyThread.Start();
+        Thread WatchKeyThread = new(WatchKeys);
+        Thread gameThread = new(GameLoop);
 
-        var gameThread = new Thread(GameLoop);
+        Console.Clear();
+        WatchKeyThread.Start();
         gameThread.Start();
 
         void WatchKeys()
         {
-            while (!GameEnded)
+            while (Key.Key != ConsoleKey.Q && !GameEnded)
             {
                 Key = Console.ReadKey(true);
-                Thread.Sleep(REFRESH_RATE);
             }
         }
 
@@ -46,6 +51,7 @@
                 }
 
                 Draw(playerPosition: m_playerPosition, width: 7, height: 15);
+                counter++;
                 Thread.Sleep(REFRESH_RATE);
                 Console.Clear();
             }
@@ -56,10 +62,10 @@
         {
             for(int i = 0; i < height - 1; i++)
             {
-                Console.WriteLine();
+                Console.WriteLine("|".PadRight(width + 1, ' ') + "|");
             }
             m_playerLine[playerPosition] = m_playerCharacter;
-            Console.WriteLine(string.Concat(m_playerLine));
+            Console.WriteLine("|" + string.Concat(m_playerLine)+ "|");
         }
     }
 }
