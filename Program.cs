@@ -1,37 +1,41 @@
-﻿class Program
-{
-    public static ConsoleKeyInfo key = new();
-    public static int REFRESH_RATE = 16;
-    public static bool gameEnded;
-
-    private static void Main(string[] args)
+﻿namespace Game {
+    class Program
     {
-        Console.Clear();
-        var keyThread = new Thread(WatchKeys);
-        keyThread.Start();
+        public static ConsoleKeyInfo key = new();
+        public static int REFRESH_RATE = 16;
+        public static bool gameEnded;
 
-        var gameThread = new Thread(GameLoop);
-        gameThread.Start();
-
-
-        void WatchKeys()
+        private static void Main(string[] args)
         {
-            while (!gameEnded)
-            {
-                key = Console.ReadKey(true);
-                Thread.Sleep(REFRESH_RATE);
-            }
-        }
+            int counter = 0;
+            GameDrawer drawer = new();
+            Console.Clear();
+            var keyThread = new Thread(WatchKeys);
+            keyThread.Start();
 
-        void GameLoop()
-        {
-            while (key.Key != ConsoleKey.Q && !gameEnded)
+            var gameThread = new Thread(GameLoop);
+            gameThread.Start();
+
+            void WatchKeys()
             {
-                Console.WriteLine($"action: {key.Key}");
-                Thread.Sleep(REFRESH_RATE);
-                Console.Clear();
+                while (!gameEnded)
+                {
+                    key = Console.ReadKey(true);
+                    Thread.Sleep(REFRESH_RATE);
+                }
             }
-            Program.gameEnded = true;
+
+            void GameLoop()
+            {
+                while (key.Key != ConsoleKey.Q && !gameEnded)
+                {
+                    Console.WriteLine($"action: {key.Key}\nticks: {counter}");
+                    drawer.Draw(3);
+                    Thread.Sleep(REFRESH_RATE);
+                    Console.Clear();
+                }
+                Program.gameEnded = true;
+            }
         }
     }
 }
