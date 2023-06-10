@@ -41,14 +41,13 @@ class Program
                 if (Key.Key == ConsoleKey.H && m_playerPosition != 0) {
                     m_playerLine[m_playerPosition] = ' ';
                     m_playerPosition--;
-                    Key = new();
                 } 
                 else if (Key.Key == ConsoleKey.L && m_playerPosition != 6)
                 {
                     m_playerLine[m_playerPosition] = ' ';
                     m_playerPosition++;
-                    Key = new();
                 }
+                Key = new();
 
                 Draw(playerPosition: m_playerPosition, width: 7, height: 15);
                 counter++;
