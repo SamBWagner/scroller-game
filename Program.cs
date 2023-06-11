@@ -41,11 +41,11 @@ class Program
         int currentGameTick = 0;
         List<Obstacle> obstacles = new();
 
-        Thread WatchKeyThread = new(WatchKeys);
+        Thread watchKeyThread = new(WatchKeys);
         Thread gameThread = new(GameLoop);
 
         Console.Clear();
-        WatchKeyThread.Start();
+        watchKeyThread.Start();
         gameThread.Start();
 
         void WatchKeys()
