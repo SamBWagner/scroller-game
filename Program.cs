@@ -1,10 +1,8 @@
-﻿// TODO: Build obstacle inserting mechanism
-// TODO: Build game end state
-
-using System.Text;
+﻿using System.Text;
 
 class Program
 {
+    private const bool DEV_MODE = false;
     private static char m_playerCharacter = '\u2588';
     private static char m_obstacleCharacter = '\u2580';
     private static char[] m_playerLine = new[] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
@@ -33,31 +31,17 @@ class Program
         {' ', ' ', ' ', ' ', ' ', ' ', ' '},
         {' ', ' ', ' ', ' ', ' ', ' ', ' '}
     };
-    private static List<bool[]> m_obstacleCharacterInputTape = new() 
-    {
-        new bool[7] { true, false, false, false, false, false, false},
-        new bool[7] { false, true, false, false, false, false, false},
-        new bool[7] { false, false, true, false, false, false, false},
-        new bool[7] { false, false, false, true, false, false, false},
-        new bool[7] { false, false, false, false, true, false, false},
-        new bool[7] { false, false, false, false, false, true, false},
-        new bool[7] { false, false, false, false, false, false, true},
-        new bool[7] { false, false, false, false, false, true, false},
-        new bool[7] { false, false, false, false, true, false, false},
-        new bool[7] { false, false, false, true, false, false, false},
-        new bool[7] { false, false, true, false, false, false, false},
-        new bool[7] { false, true, false, false, false, false, false},
-        new bool[7] { true, false, false, false, false, false, false},
-        new bool[7] { false, false, false, false, false, false, false}
-    };
+    private static List<bool[]> m_obstacleCharacterInputTape = new();
     private static int m_obstacleCharacterInputTapeReadHead = 0;
     private static bool[] m_obstacleCharacterReadLine = new bool[7];
 
     private static List<Obstacle> obstacles = new();
+    private static bool collision;
 
     private static void Main(string[] args)
     {
         int currentGameTick = 0;
+        m_obstacleCharacterInputTape = GenerateGameWorld();
 
         Thread watchKeyThread = new(WatchKeys);
         Thread gameThread = new(GameLoop);
@@ -92,7 +76,8 @@ class Program
                 m_Key = new();
 
                 // Obstacle Insertion
-                if (ShouldUpdateGameWorld(currentGameTick) && m_obstacleCharacterInputTapeReadHead != m_obstacleCharacterInputTape.Count)
+                if (ShouldUpdateGameWorld(currentGameTick) 
+                        && m_obstacleCharacterInputTapeReadHead != m_obstacleCharacterInputTape.Count)
                 {
                     m_obstacleCharacterReadLine = m_obstacleCharacterInputTape[m_obstacleCharacterInputTapeReadHead];
                     for (int i = 0; i < m_obstacleCharacterReadLine.Length; i++)
@@ -102,11 +87,11 @@ class Program
                             obstacles.Add(new Obstacle(i));
                         }
                     }
-                    if (m_obstacleCharacterInputTapeReadHead == m_width)
+
+                    if (m_obstacleCharacterInputTape.Count > 0)
                     {
-                        m_obstacleCharacterInputTapeReadHead = 0;
+                        m_obstacleCharacterInputTapeReadHead++;
                     }
-                    m_obstacleCharacterInputTapeReadHead++;
                 }
 
                 // Obstacle management
@@ -118,16 +103,23 @@ class Program
                         {
                             obstacles[i].m_firstSpawn = false;
                             obstacles[i].m_yPosition++;
-                            m_gameWorld[obstacles[i].m_xPosition, obstacles[i].m_yPosition] = m_obstacleCharacter;
+                            m_gameWorld[obstacles[i].m_yPosition, obstacles[i].m_xPosition] = m_obstacleCharacter;
+                        }
+                        else if (!obstacles[i].m_firstSpawn 
+                                && obstacles[i].m_yPosition == m_height - 1)
+                        {
+                            m_gameWorld[obstacles[i].m_yPosition ,obstacles[i].m_xPosition] = ' ';
+                            obstacles.Remove(obstacles[i]);
                         }
                         else if (!obstacles[i].m_firstSpawn)
                         {
                             obstacles[i].m_yPosition++;
-                            m_gameWorld[obstacles[i].m_xPosition, obstacles[i].m_yPosition] = m_obstacleCharacter;
-                            m_gameWorld[obstacles[i].m_xPosition, obstacles[i].m_yPosition - 1] = ' ';
+                            m_gameWorld[obstacles[i].m_yPosition, obstacles[i].m_xPosition] = m_obstacleCharacter;
+                            m_gameWorld[obstacles[i].m_yPosition - 1, obstacles[i].m_xPosition] = ' ';
                         }
                     }
                 }
+
 
                 // Gameworld Drawing Logic
                 StringBuilder builder = new();
@@ -144,10 +136,25 @@ class Program
                 }
 
                 m_playerLine[m_playerPosition] = m_playerCharacter;
+                Console.WriteLine("|-------|");
                 Console.WriteLine("|" + string.Concat(m_playerLine)+ "|");
 
-
                 currentGameTick++;
+
+                // Game End State
+                if (ShouldUpdateGameWorld(currentGameTick) 
+                        && obstacles.Count > 0
+                        && obstacles.First().m_yPosition == m_height - 1
+                        && m_playerPosition == obstacles.First().m_xPosition) 
+                {
+                    Console.WriteLine("Collision Occurred!");
+                    m_GameEnded = true;
+                }
+
+                    if (m_obstacleCharacterInputTapeReadHead == 240) // kinda bung logic but eh... 
+                {
+                    Console.WriteLine("Game Over! You Win!");
+                }
                 Thread.Sleep(m_RefreshRate);
                 Console.Clear();
             }
@@ -156,7 +163,7 @@ class Program
 
         bool ShouldUpdateGameWorld(int currentTick)
         {
-            return currentTick % 15 == 0;
+            return currentTick % 5 == 0;
         }
 
     }
@@ -173,5 +180,42 @@ class Program
             m_yPosition = -1;
             m_firstSpawn = true;
         }
+    }
+
+    static List<bool[]> GenerateGameWorld()
+    {
+        Random rng = new Random();
+        List<bool[]> gameWorld = new List<bool[]>();
+
+        int obstacleCooldown = 0;
+
+        // 240 to set the max game time to 1 minute
+        for (int i = 0; i < 240; i++)
+        {
+            bool[] row = new bool[7];
+            if (obstacleCooldown <= 0)
+            {
+                int obstacleCount = rng.Next(1, 4); // Up to 3 obstacles per line
+                for (int j = 0; j < obstacleCount; j++)
+                {
+                    int obstaclePos;
+                    do
+                    {
+                        obstaclePos = rng.Next(7);
+                    } while (row[obstaclePos]); // Ensure we don't overwrite an existing obstacle
+
+                    row[obstaclePos] = true;
+                }
+                obstacleCooldown = 3;
+            }
+            else
+            {
+                obstacleCooldown--;
+            }
+
+            gameWorld.Add(row);
+        }
+
+        return gameWorld;
     }
 }
