@@ -35,8 +35,8 @@ class Program
     private static int m_obstacleCharacterInputTapeReadHead = 0;
     private static bool[] m_obstacleCharacterReadLine = new bool[7];
 
-    private static List<Obstacle> obstacles = new();
-    private static bool collision;
+    private static List<Obstacle> m_obstacles = new();
+    private static bool m_collision;
 
     private static void Main(string[] args)
     {
@@ -84,7 +84,7 @@ class Program
                     {
                         if (m_obstacleCharacterReadLine[i])
                         {
-                            obstacles.Add(new Obstacle(i));
+                            m_obstacles.Add(new Obstacle(i));
                         }
                     }
 
@@ -97,25 +97,25 @@ class Program
                 // Obstacle management
                 if (ShouldUpdateGameWorld(currentGameTick))
                 {
-                    for (int i = 0; i < obstacles.Count; i++) 
+                    for (int i = 0; i < m_obstacles.Count; i++) 
                     {
-                        if (obstacles[i].m_firstSpawn)
+                        if (m_obstacles[i].m_firstSpawn)
                         {
-                            obstacles[i].m_firstSpawn = false;
-                            obstacles[i].m_yPosition++;
-                            m_gameWorld[obstacles[i].m_yPosition, obstacles[i].m_xPosition] = m_obstacleCharacter;
+                            m_obstacles[i].m_firstSpawn = false;
+                            m_obstacles[i].m_yPosition++;
+                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = m_obstacleCharacter;
                         }
-                        else if (!obstacles[i].m_firstSpawn 
-                                && obstacles[i].m_yPosition == m_height - 1)
+                        else if (!m_obstacles[i].m_firstSpawn 
+                                && m_obstacles[i].m_yPosition == m_height - 1)
                         {
-                            m_gameWorld[obstacles[i].m_yPosition ,obstacles[i].m_xPosition] = ' ';
-                            obstacles.Remove(obstacles[i]);
+                            m_gameWorld[m_obstacles[i].m_yPosition ,m_obstacles[i].m_xPosition] = ' ';
+                            m_obstacles.Remove(m_obstacles[i]);
                         }
-                        else if (!obstacles[i].m_firstSpawn)
+                        else if (!m_obstacles[i].m_firstSpawn)
                         {
-                            obstacles[i].m_yPosition++;
-                            m_gameWorld[obstacles[i].m_yPosition, obstacles[i].m_xPosition] = m_obstacleCharacter;
-                            m_gameWorld[obstacles[i].m_yPosition - 1, obstacles[i].m_xPosition] = ' ';
+                            m_obstacles[i].m_yPosition++;
+                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = m_obstacleCharacter;
+                            m_gameWorld[m_obstacles[i].m_yPosition - 1, m_obstacles[i].m_xPosition] = ' ';
                         }
                     }
                 }
@@ -143,9 +143,9 @@ class Program
 
                 // Game End State
                 if (ShouldUpdateGameWorld(currentGameTick) 
-                        && obstacles.Count > 0
-                        && obstacles.First().m_yPosition == m_height - 1
-                        && m_playerPosition == obstacles.First().m_xPosition) 
+                        && m_obstacles.Count > 0
+                        && m_obstacles.First().m_yPosition == m_height - 1
+                        && m_playerPosition == m_obstacles.First().m_xPosition) 
                 {
                     Console.WriteLine("Collision Occurred!");
                     m_GameEnded = true;
