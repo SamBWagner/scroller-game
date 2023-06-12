@@ -34,7 +34,6 @@ class Program
         {' ', ' ', ' ', ' ', ' ', ' ', ' '},
     };
     private static int[] obstacleInputTape = new int[] {0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0};
-    private static int obstacleInputTapeReadHead = 0;
 
     private static void Main(string[] args)
     {
@@ -74,36 +73,15 @@ class Program
                 m_Key = new();
 
                 // Obstacle Insertion
-                if (ShouldUpdateGameWorld(currentGameTick) && obstacleInputTape.Length != 0 && !(obstacleInputTapeReadHead > obstacleInputTape.Length - 1))
+                if (ShouldUpdateGameWorld(currentGameTick) && obstacleInputTape.Length != 0)
                 {
-                    obstacles.Add(new Obstacle 
-                            {
-                                m_xPosition = obstacleInputTape[obstacleInputTapeReadHead],
-                                m_yPosition = 0,
-                                m_previousYPosition = -1 
-                            });
-                    obstacleInputTapeReadHead++;
+                    // TODO: Implement obstacle read and place from tape logic
                 }
 
                 // Obstacle placement
                 if (ShouldUpdateGameWorld(currentGameTick) && obstacles.Count != 0)
                 {
-                    for (int i = 0; i < obstacles.Count; i++)
-                    {
-                        if (obstacles[i].m_yPosition == m_height)
-                        {
-                            m_gameWorld[obstacles[i].m_yPosition - 1, obstacles[i].m_xPosition] = ' ';
-                            obstacles.RemoveAt(i);
-                        }
-                        m_gameWorld[obstacles[i].m_yPosition, obstacles[i].m_xPosition] = m_obstacle;
-                        obstacles[i].m_yPosition++;
-
-                        if (obstacles[i].m_previousYPosition != -1)
-                        {
-                            m_gameWorld[obstacles[i].m_previousYPosition, obstacles[i].m_xPosition] = ' ';
-                        }
-                        obstacles[i].m_previousYPosition = obstacles[i].m_yPosition - 1;
-                    }
+                    // TODO: Implement obstacle position update logic
                 }
 
                 // Gameworld Drawing Logic
@@ -136,12 +114,5 @@ class Program
             return currentTick % 15 == 0; 
         }
 
-    }
-
-    class Obstacle
-    {
-        public int m_xPosition { get; set; }
-        public int m_previousYPosition { get; set; }
-        public int m_yPosition { get; set; }
     }
 }
