@@ -6,7 +6,7 @@ using System.Text;
 class Program
 {
     private static char m_playerCharacter = '\u2588';
-    private static char m_obstacle = '\u2580';
+    private static char m_obstacleCharacter = '\u2580';
     private static char[] m_playerLine = new[] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
     private static int m_playerPosition = 3;
 
@@ -15,7 +15,7 @@ class Program
     private static bool m_GameEnded;
     private static int m_height = 15;
     private static int m_width = 7;
-    private static char[,] m_gameWorld = new char[15,7] 
+    private static char[,] m_gameWorld = new char[15,7]
     {
         {' ', ' ', ' ', ' ', ' ', ' ', ' '},
         {' ', ' ', ' ', ' ', ' ', ' ', ' '},
@@ -31,14 +31,33 @@ class Program
         {' ', ' ', ' ', ' ', ' ', ' ', ' '},
         {' ', ' ', ' ', ' ', ' ', ' ', ' '},
         {' ', ' ', ' ', ' ', ' ', ' ', ' '},
-        {' ', ' ', ' ', ' ', ' ', ' ', ' '},
+        {' ', ' ', ' ', ' ', ' ', ' ', ' '}
     };
-    private static int[] obstacleInputTape = new int[] {0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0};
+    private static List<bool[]> m_obstacleCharacterInputTape = new() 
+    {
+        new bool[7] { true, false, false, false, false, false, false},
+        new bool[7] { false, true, false, false, false, false, false},
+        new bool[7] { false, false, true, false, false, false, false},
+        new bool[7] { false, false, false, true, false, false, false},
+        new bool[7] { false, false, false, false, true, false, false},
+        new bool[7] { false, false, false, false, false, true, false},
+        new bool[7] { false, false, false, false, false, false, true},
+        new bool[7] { false, false, false, false, false, true, false},
+        new bool[7] { false, false, false, false, true, false, false},
+        new bool[7] { false, false, false, true, false, false, false},
+        new bool[7] { false, false, true, false, false, false, false},
+        new bool[7] { false, true, false, false, false, false, false},
+        new bool[7] { true, false, false, false, false, false, false},
+        new bool[7] { false, false, false, false, false, false, false}
+    };
+    private static int m_obstacleCharacterInputTapeReadHead = 0;
+    private static bool[] m_obstacleCharacterReadLine = new bool[7];
+
+    private static List<Obstacle> obstacles = new();
 
     private static void Main(string[] args)
     {
         int currentGameTick = 0;
-        List<Obstacle> obstacles = new();
 
         Thread watchKeyThread = new(WatchKeys);
         Thread gameThread = new(GameLoop);
@@ -59,7 +78,7 @@ class Program
         {
             while (m_Key.Key != ConsoleKey.Q && !m_GameEnded)
             {
-                Console.WriteLine($"Key: {m_Key.Key} | ticks: {currentGameTick}");
+                Console.WriteLine($"Key: {m_Key.Key} | ticks: {currentGameTick} | ReadHeadValue: {m_obstacleCharacterInputTapeReadHead}");
 
                 if (m_Key.Key == ConsoleKey.H && m_playerPosition != 0) {
                     m_playerLine[m_playerPosition] = ' ';
@@ -73,15 +92,41 @@ class Program
                 m_Key = new();
 
                 // Obstacle Insertion
-                if (ShouldUpdateGameWorld(currentGameTick) && obstacleInputTape.Length != 0)
+                if (ShouldUpdateGameWorld(currentGameTick) && m_obstacleCharacterInputTapeReadHead != m_obstacleCharacterInputTape.Count)
                 {
-                    // TODO: Implement obstacle read and place from tape logic
+                    m_obstacleCharacterReadLine = m_obstacleCharacterInputTape[m_obstacleCharacterInputTapeReadHead];
+                    for (int i = 0; i < m_obstacleCharacterReadLine.Length; i++)
+                    {
+                        if (m_obstacleCharacterReadLine[i])
+                        {
+                            obstacles.Add(new Obstacle(i));
+                        }
+                    }
+                    if (m_obstacleCharacterInputTapeReadHead == m_width)
+                    {
+                        m_obstacleCharacterInputTapeReadHead = 0;
+                    }
+                    m_obstacleCharacterInputTapeReadHead++;
                 }
 
-                // Obstacle placement
-                if (ShouldUpdateGameWorld(currentGameTick) && obstacles.Count != 0)
+                // Obstacle management
+                if (ShouldUpdateGameWorld(currentGameTick))
                 {
-                    // TODO: Implement obstacle position update logic
+                    for (int i = 0; i < obstacles.Count; i++) 
+                    {
+                        if (obstacles[i].m_firstSpawn)
+                        {
+                            obstacles[i].m_firstSpawn = false;
+                            obstacles[i].m_yPosition++;
+                            m_gameWorld[obstacles[i].m_xPosition, obstacles[i].m_yPosition] = m_obstacleCharacter;
+                        }
+                        else if (!obstacles[i].m_firstSpawn)
+                        {
+                            obstacles[i].m_yPosition++;
+                            m_gameWorld[obstacles[i].m_xPosition, obstacles[i].m_yPosition] = m_obstacleCharacter;
+                            m_gameWorld[obstacles[i].m_xPosition, obstacles[i].m_yPosition - 1] = ' ';
+                        }
+                    }
                 }
 
                 // Gameworld Drawing Logic
@@ -111,8 +156,22 @@ class Program
 
         bool ShouldUpdateGameWorld(int currentTick)
         {
-            return currentTick % 15 == 0; 
+            return currentTick % 15 == 0;
         }
 
+    }
+
+    class Obstacle
+    {
+        public int m_yPosition { get; set; }
+        public int m_xPosition { get; set; }
+        public bool m_firstSpawn { get; set; }
+
+        public Obstacle(int xPosition)
+        {
+            m_xPosition = xPosition;
+            m_yPosition = -1;
+            m_firstSpawn = true;
+        }
     }
 }
