@@ -2,9 +2,8 @@
 
 class Program
 {
-    private const bool DEV_MODE = false;
-    private static char m_playerCharacter = '\u2588';
-    private static char m_obstacleCharacter = '\u2580';
+    private static char m_playerChar = '\u2588';
+    private static char m_obstacleChar = '\u2580';
     private static char[] m_playerLine = new[] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
     private static int m_playerPosition = 3;
 
@@ -52,7 +51,7 @@ class Program
 
         void WatchKeys()
         {
-            while (m_Key.Key != ConsoleKey.Q && !m_GameEnded)
+            while (!m_GameEnded)
             {
                 m_Key = Console.ReadKey(true);
             }
@@ -60,8 +59,10 @@ class Program
 
         void GameLoop()
         {
-            while (m_Key.Key != ConsoleKey.Q && !m_GameEnded)
+            while (true)
             {
+                if (m_Key.Key == ConsoleKey.Q) break;
+
                 Console.WriteLine($"Key: {m_Key.Key} | ticks: {currentGameTick} | ReadHeadValue: {m_obstacleCharacterInputTapeReadHead}");
 
                 if (m_Key.Key == ConsoleKey.H && m_playerPosition != 0) {
@@ -76,7 +77,7 @@ class Program
                 m_Key = new();
 
                 // Obstacle Insertion
-                if (ShouldUpdateGameWorld(currentGameTick) 
+                if (currentGameTick % 5 == 0
                         && m_obstacleCharacterInputTapeReadHead != m_obstacleCharacterInputTape.Count)
                 {
                     m_obstacleCharacterReadLine = m_obstacleCharacterInputTape[m_obstacleCharacterInputTapeReadHead];
@@ -95,7 +96,7 @@ class Program
                 }
 
                 // Obstacle management
-                if (ShouldUpdateGameWorld(currentGameTick))
+                if (currentGameTick % 5 == 0)
                 {
                     for (int i = 0; i < m_obstacles.Count; i++) 
                     {
@@ -103,7 +104,7 @@ class Program
                         {
                             m_obstacles[i].m_firstSpawn = false;
                             m_obstacles[i].m_yPosition++;
-                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = m_obstacleCharacter;
+                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = m_obstacleChar;
                         }
                         else if (!m_obstacles[i].m_firstSpawn 
                                 && m_obstacles[i].m_yPosition == m_height - 1)
@@ -114,7 +115,7 @@ class Program
                         else if (!m_obstacles[i].m_firstSpawn)
                         {
                             m_obstacles[i].m_yPosition++;
-                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = m_obstacleCharacter;
+                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = m_obstacleChar;
                             m_gameWorld[m_obstacles[i].m_yPosition - 1, m_obstacles[i].m_xPosition] = ' ';
                         }
                     }
@@ -135,20 +136,20 @@ class Program
                     builder.Clear();
                 }
 
-                m_playerLine[m_playerPosition] = m_playerCharacter;
+                m_playerLine[m_playerPosition] = m_playerChar;
                 Console.WriteLine("|-------|");
                 Console.WriteLine("|" + string.Concat(m_playerLine)+ "|");
 
                 currentGameTick++;
 
                 // Game End State
-                if (ShouldUpdateGameWorld(currentGameTick) 
+                if (currentGameTick % 5 == 0 
                         && m_obstacles.Count > 0
                         && m_obstacles.First().m_yPosition == m_height - 1
                         && m_playerPosition == m_obstacles.First().m_xPosition) 
                 {
                     Console.WriteLine("Collision Occurred!");
-                    m_GameEnded = true;
+                    break;
                 }
 
                     if (m_obstacleCharacterInputTapeReadHead == 240) // kinda bung logic but eh... 
@@ -158,14 +159,9 @@ class Program
                 Thread.Sleep(m_RefreshRate);
                 Console.Clear();
             }
+            
             m_GameEnded = true;
         }
-
-        bool ShouldUpdateGameWorld(int currentTick)
-        {
-            return currentTick % 5 == 0;
-        }
-
     }
 
     class Obstacle
