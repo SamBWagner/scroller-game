@@ -33,9 +33,8 @@ class Program
     private static char[] m_playerLine = new[] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
     private static int m_playerPosition = 3;
     private static ConsoleKeyInfo m_playersKeyPressedInfo = new();
-    private static List<bool[]> m_obstacleCharacterInputTape = new();
-    private static int m_obstacleCharacterInputTapeReadHead = 0;
-    private static bool[] m_obstacleCharacterReadLine = new bool[7];
+    private static List<bool[]> m_obstacleInputTape = new();
+    private static int m_obstacleInputTapeReadHead = 0;
 
     private static List<Obstacle> m_obstacles = new();
     private static bool m_collision;
@@ -43,7 +42,7 @@ class Program
     private static void Main(string[] args)
     {
         int currentGameTick = 0;
-        m_obstacleCharacterInputTape = GenerateGameWorld();
+        m_obstacleInputTape = GenerateGameWorld();
 
         Thread watchKeyThread = new(WatchKeys);
         Thread gameThread = new(GameLoop);
@@ -64,7 +63,7 @@ class Program
         {
             while (m_playersKeyPressedInfo.Key != ConsoleKey.Q && !m_GameEnded)
             {
-                Console.WriteLine($"Key: {m_playersKeyPressedInfo.Key} | ticks: {currentGameTick} | ReadHeadValue: {m_obstacleCharacterInputTapeReadHead}");
+                Console.WriteLine($"Key: {m_playersKeyPressedInfo.Key} | ticks: {currentGameTick} | ReadHeadValue: {m_obstacleInputTapeReadHead}");
 
                 if (m_playersKeyPressedInfo.Key == ConsoleKey.H && m_playerPosition != 0) {
                     m_playerLine[m_playerPosition] = ' ';
@@ -78,21 +77,20 @@ class Program
                 m_playersKeyPressedInfo = new();
 
                 // Obstacle Insertion
-                if (ShouldUpdateGameWorld(currentGameTick) 
-                        && m_obstacleCharacterInputTapeReadHead != m_obstacleCharacterInputTape.Count)
+                if (ShouldUpdateGameWorld(currentGameTick)
+                        && m_obstacleInputTapeReadHead != m_obstacleInputTape.Count)
                 {
-                    m_obstacleCharacterReadLine = m_obstacleCharacterInputTape[m_obstacleCharacterInputTapeReadHead];
-                    for (int i = 0; i < m_obstacleCharacterReadLine.Length; i++)
+                    for (int i = 0; i < m_obstacleInputTape[m_obstacleInputTapeReadHead].Length; i++)
                     {
-                        if (m_obstacleCharacterReadLine[i])
+                        if (m_obstacleInputTape[m_obstacleInputTapeReadHead][i])
                         {
                             m_obstacles.Add(new Obstacle(i));
                         }
                     }
 
-                    if (m_obstacleCharacterInputTape.Count > 0)
+                    if (m_obstacleInputTape.Count > 0)
                     {
-                        m_obstacleCharacterInputTapeReadHead++;
+                        m_obstacleInputTapeReadHead++;
                     }
                 }
 
@@ -107,13 +105,12 @@ class Program
                             m_obstacles[i].m_yPosition++;
                             m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = m_obstacleCharacter;
                         }
-                        else if (!m_obstacles[i].m_firstSpawn 
-                                && m_obstacles[i].m_yPosition == m_height - 1)
+                        else if (m_obstacles[i].m_yPosition == m_height - 1)
                         {
-                            m_gameWorld[m_obstacles[i].m_yPosition ,m_obstacles[i].m_xPosition] = ' ';
+                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = ' ';
                             m_obstacles.Remove(m_obstacles[i]);
                         }
-                        else if (!m_obstacles[i].m_firstSpawn)
+                        else
                         {
                             m_obstacles[i].m_yPosition++;
                             m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = m_obstacleCharacter;
@@ -121,7 +118,6 @@ class Program
                         }
                     }
                 }
-
 
                 // Gameworld Drawing Logic
                 StringBuilder builder = new();
@@ -153,7 +149,7 @@ class Program
                     m_GameEnded = true;
                 }
 
-                    if (m_obstacleCharacterInputTapeReadHead == 240) // kinda bung logic but eh... 
+                    if (m_obstacleInputTapeReadHead == 240) // kinda bung logic but eh... 
                 {
                     Console.WriteLine("Game Over! You Win!");
                 }
@@ -167,7 +163,6 @@ class Program
         {
             return currentTick % 5 == 0;
         }
-
     }
 
     class Obstacle
