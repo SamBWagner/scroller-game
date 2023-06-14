@@ -3,12 +3,10 @@
 class Program
 {
     private const bool DEV_MODE = false;
+
     private static char m_playerCharacter = '\u2588';
     private static char m_obstacleCharacter = '\u2580';
-    private static char[] m_playerLine = new[] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
-    private static int m_playerPosition = 3;
 
-    private static ConsoleKeyInfo m_Key = new();
     private static int m_RefreshRate = 16; // ~60fps
     private static bool m_GameEnded;
     private static int m_height = 15;
@@ -31,6 +29,10 @@ class Program
         {' ', ' ', ' ', ' ', ' ', ' ', ' '},
         {' ', ' ', ' ', ' ', ' ', ' ', ' '}
     };
+
+    private static char[] m_playerLine = new[] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
+    private static int m_playerPosition = 3;
+    private static ConsoleKeyInfo m_playersKeyPressedInfo = new();
     private static List<bool[]> m_obstacleCharacterInputTape = new();
     private static int m_obstacleCharacterInputTapeReadHead = 0;
     private static bool[] m_obstacleCharacterReadLine = new bool[7];
@@ -52,28 +54,28 @@ class Program
 
         void WatchKeys()
         {
-            while (m_Key.Key != ConsoleKey.Q && !m_GameEnded)
+            while (m_playersKeyPressedInfo.Key != ConsoleKey.Q && !m_GameEnded)
             {
-                m_Key = Console.ReadKey(true);
+                m_playersKeyPressedInfo = Console.ReadKey(true);
             }
         }
 
         void GameLoop()
         {
-            while (m_Key.Key != ConsoleKey.Q && !m_GameEnded)
+            while (m_playersKeyPressedInfo.Key != ConsoleKey.Q && !m_GameEnded)
             {
-                Console.WriteLine($"Key: {m_Key.Key} | ticks: {currentGameTick} | ReadHeadValue: {m_obstacleCharacterInputTapeReadHead}");
+                Console.WriteLine($"Key: {m_playersKeyPressedInfo.Key} | ticks: {currentGameTick} | ReadHeadValue: {m_obstacleCharacterInputTapeReadHead}");
 
-                if (m_Key.Key == ConsoleKey.H && m_playerPosition != 0) {
+                if (m_playersKeyPressedInfo.Key == ConsoleKey.H && m_playerPosition != 0) {
                     m_playerLine[m_playerPosition] = ' ';
                     m_playerPosition--;
                 }
-                else if (m_Key.Key == ConsoleKey.L && m_playerPosition != 6)
+                else if (m_playersKeyPressedInfo.Key == ConsoleKey.L && m_playerPosition != 6)
                 {
                     m_playerLine[m_playerPosition] = ' ';
                     m_playerPosition++;
                 }
-                m_Key = new();
+                m_playersKeyPressedInfo = new();
 
                 // Obstacle Insertion
                 if (ShouldUpdateGameWorld(currentGameTick) 
