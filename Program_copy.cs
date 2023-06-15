@@ -38,7 +38,7 @@ class Program_copy
     private static List<Obstacle> m_obstacles = new();
     private static bool m_collision;
 
-    private static void Main(string[] args)
+    private static void Main2(string[] args)
     {
         int currentGameTick = 0;
         m_obstacleCharacterInputTape = GenerateGameWorld();
