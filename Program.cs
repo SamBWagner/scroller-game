@@ -98,22 +98,22 @@ class Program
                     for (int i = 0; i < m_obstacles.Count; i++) 
                     {
                         Obstacle obstacle = m_obstacles[i];
-                        if (obstacle.m_firstSpawn)
+                        if (obstacle.firstSpawn)
                         {
-                            obstacle.m_firstSpawn = false;
-                            obstacle.m_yPosition++;
-                            m_gameWorld[obstacle.m_yPosition, obstacle.m_xPosition] = m_obstacleChar;
+                            obstacle.firstSpawn = false;
+                            obstacle.yPosition++;
+                            m_gameWorld[obstacle.yPosition, obstacle.xPosition] = m_obstacleChar;
                         }
-                        else if (obstacle.m_yPosition == m_height - 1)
+                        else if (obstacle.yPosition == m_height - 1)
                         {
-                            m_gameWorld[obstacle.m_yPosition, obstacle.m_xPosition] = ' ';
+                            m_gameWorld[obstacle.yPosition, obstacle.xPosition] = ' ';
                             m_obstacles.Remove(obstacle);
                         }
                         else
                         {
-                            obstacle.m_yPosition++;
-                            m_gameWorld[obstacle.m_yPosition, obstacle.m_xPosition] = m_obstacleChar;
-                            m_gameWorld[obstacle.m_yPosition - 1, obstacle.m_xPosition] = ' ';
+                            obstacle.yPosition++;
+                            m_gameWorld[obstacle.yPosition, obstacle.xPosition] = m_obstacleChar;
+                            m_gameWorld[obstacle.yPosition - 1, obstacle.xPosition] = ' ';
                         }
                     }
                 }
@@ -141,8 +141,8 @@ class Program
                 // Game End State
                 if (currentGameTick % 5 == 0 
                         && m_obstacles.Count > 0
-                        && m_obstacles.First().m_yPosition == m_height - 1
-                        && m_playerPosition == m_obstacles.First().m_xPosition) 
+                        && m_obstacles.First().yPosition == m_height - 1
+                        && m_playerPosition == m_obstacles.First().xPosition) 
                 {
                     Console.WriteLine("Collision Occurred!");
                     break;
@@ -168,15 +168,15 @@ class Program
 
     class Obstacle
     {
-        public int m_yPosition { get; set; }
-        public int m_xPosition { get; set; }
-        public bool m_firstSpawn { get; set; }
+        public int yPosition { get; set; }
+        public int xPosition { get; set; }
+        public bool firstSpawn { get; set; }
 
         public Obstacle(int xPosition)
         {
-            m_xPosition = xPosition;
-            m_yPosition = -1;
-            m_firstSpawn = true;
+            this.xPosition = xPosition;
+            yPosition = -1;
+            firstSpawn = true;
         }
     }
 
