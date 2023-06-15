@@ -63,8 +63,6 @@ class Program
         {
             while (m_playersKeyPressedInfo.Key != ConsoleKey.Q && !m_GameEnded)
             {
-                Console.WriteLine($"Key: {m_playersKeyPressedInfo.Key} | ticks: {currentGameTick} | ReadHeadValue: {m_obstacleInputTapeReadHead}");
-
                 if (m_playersKeyPressedInfo.Key == ConsoleKey.H && m_playerPosition != 0) {
                     m_playerLine[m_playerPosition] = ' ';
                     m_playerPosition--;
