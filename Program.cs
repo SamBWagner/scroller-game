@@ -42,7 +42,7 @@ class Program
     private static void Main(string[] args)
     {
         int currentGameTick = 0;
-        m_obstacleInputTape = GenerateGameWorld();
+        m_obstacleInputTape = GenerateObstacleTape();
 
         Thread watchKeyThread = new(WatchKeys);
         Thread gameThread = new(GameLoop);
@@ -179,7 +179,7 @@ class Program
         }
     }
 
-    static List<bool[]> GenerateGameWorld()
+    static List<bool[]> GenerateObstacleTape()
     {
         Random rng = new Random();
         List<bool[]> gameWorld = new List<bool[]>();
