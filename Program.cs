@@ -126,10 +126,10 @@ class Program
                     {
                         builder.Append(m_gameWorld[i,j]);
                     }
-                    builder.Append("|");
-                    Console.WriteLine(builder);
-                    builder.Clear();
+                    builder.Append("|\n");
                 }
+                Console.WriteLine(builder);
+                builder.Clear();
 
                 m_playerLine[m_playerPosition] = m_playerChar;
                 Console.WriteLine("|-------|");
