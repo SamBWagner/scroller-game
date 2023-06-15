@@ -71,9 +71,9 @@ class Program
                 }
                 m_playersKeyPressedInfo = new ConsoleKeyInfo();
 
-                // Obstacle Insertion
                 if (ShouldUpdateGameWorld(currentGameTick))
                 {
+                    // Obstacle Insertion
                     for (int i = 0; i < m_obstacleInputTape[m_obstacleInputTapeReadHead].Length; i++)
                     {
                         if (m_obstacleInputTape[m_obstacleInputTapeReadHead][i])
@@ -86,11 +86,8 @@ class Program
                     {
                         m_obstacleInputTapeReadHead++;
                     }
-                }
 
-                // Obstacle management
-                if (ShouldUpdateGameWorld(currentGameTick))
-                {
+                    // Obstacle management
                     for (int i = 0; i < m_obstacles.Count; i++) 
                     {
                         if (m_obstacles[i].m_firstSpawn)
@@ -106,9 +103,9 @@ class Program
                         }
                         else
                         {
+                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = ' ';
                             m_obstacles[i].m_yPosition++;
                             m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = OBSTACLE_CHARACTER;
-                            m_gameWorld[m_obstacles[i].m_yPosition - 1, m_obstacles[i].m_xPosition] = ' ';
                         }
                     }
                 }
@@ -131,12 +128,12 @@ class Program
                 Console.WriteLine("|-------|");
                 Console.WriteLine("|" + string.Concat(m_playerLine)+ "|");
 
-                currentGameTick++;
-
+                // TODO: End state is not if the oldest obstacle's position is
+                // the same as the player's. It's if the player's position is 
+                // the same as any obstacle who's x position is the same as the
+                // player's and those obstacle's are on the last line
                 // Game End State
-                if (ShouldUpdateGameWorld(currentGameTick) 
-                        && m_obstacles.Count > 0
-                        && m_obstacles.First().m_yPosition == HEIGHT - 1
+                if (m_obstacles.First().m_yPosition == HEIGHT - 1
                         && m_playerPosition == m_obstacles.First().m_xPosition) 
                 {
                     Console.WriteLine("Collision Occurred!");
@@ -147,6 +144,8 @@ class Program
                 {
                     Console.WriteLine("Game Over! You Win!");
                 }
+
+                currentGameTick++;
                 Thread.Sleep(REFRESH_RATE);
                 Console.Clear();
             }
