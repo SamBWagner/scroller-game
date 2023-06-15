@@ -72,7 +72,7 @@ class Program
                 m_playersKeyPressedInfo = new ConsoleKeyInfo();
 
                 // Obstacle Insertion
-                if (ShouldUpdateGameWorld(currentGameTick) && m_obstacleInputTapeReadHead != m_obstacleInputTape.Count)
+                if (ShouldUpdateGameWorld(currentGameTick))
                 {
                     for (int i = 0; i < m_obstacleInputTape[m_obstacleInputTapeReadHead].Length; i++)
                     {
