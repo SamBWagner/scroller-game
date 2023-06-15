@@ -97,22 +97,23 @@ class Program
                 {
                     for (int i = 0; i < m_obstacles.Count; i++) 
                     {
-                        if (m_obstacles[i].m_firstSpawn)
+                        Obstacle obstacle = m_obstacles[i];
+                        if (obstacle.m_firstSpawn)
                         {
-                            m_obstacles[i].m_firstSpawn = false;
-                            m_obstacles[i].m_yPosition++;
-                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = m_obstacleChar;
+                            obstacle.m_firstSpawn = false;
+                            obstacle.m_yPosition++;
+                            m_gameWorld[obstacle.m_yPosition, obstacle.m_xPosition] = m_obstacleChar;
                         }
-                        else if (m_obstacles[i].m_yPosition == m_height - 1)
+                        else if (obstacle.m_yPosition == m_height - 1)
                         {
-                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = ' ';
-                            m_obstacles.Remove(m_obstacles[i]);
+                            m_gameWorld[obstacle.m_yPosition, obstacle.m_xPosition] = ' ';
+                            m_obstacles.Remove(obstacle);
                         }
                         else
                         {
-                            m_obstacles[i].m_yPosition++;
-                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = m_obstacleChar;
-                            m_gameWorld[m_obstacles[i].m_yPosition - 1, m_obstacles[i].m_xPosition] = ' ';
+                            obstacle.m_yPosition++;
+                            m_gameWorld[obstacle.m_yPosition, obstacle.m_xPosition] = m_obstacleChar;
+                            m_gameWorld[obstacle.m_yPosition - 1, obstacle.m_xPosition] = ' ';
                         }
                     }
                 }
