@@ -9,7 +9,7 @@ class Program
     private const int REFRESH_RATE = 16; // ~60fps
     
     private static bool m_gameEnded;
-    private static char[,] m_gameWorld = new char[15,7]
+    private static char[,] m_gameWorld = new char[HEIGHT,WIDTH]
     {
         {' ', ' ', ' ', ' ', ' ', ' ', ' '},
         {' ', ' ', ' ', ' ', ' ', ' ', ' '},
@@ -28,7 +28,7 @@ class Program
         {' ', ' ', ' ', ' ', ' ', ' ', ' '}
     };
 
-    private static char[] m_playerLine = new char[7] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
+    private static char[] m_playerLine = new char[WIDTH] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
     private static int m_playerPosition = 3;
     private static ConsoleKeyInfo m_playersKeyPressedInfo;
     
