@@ -128,10 +128,6 @@ class Program
                 Console.WriteLine("|-------|");
                 Console.WriteLine("|" + string.Concat(m_playerLine)+ "|");
 
-                // TODO: End state is not if the oldest obstacle's position is
-                // the same as the player's. It's if the player's position is 
-                // the same as any obstacle who's x position is the same as the
-                // player's and those obstacle's are on the last line
                 // Game End State
                 if (m_obstacles.First().m_yPosition == HEIGHT - 1
                         && m_playerPosition == m_obstacles.First().m_xPosition) 
