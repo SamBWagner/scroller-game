@@ -134,18 +134,23 @@ class Program
                 for (int i = 0; i < m_obstacles.Count; i++) 
                 {
                     if (m_obstacles[i].m_yPosition == HEIGHT - 1
-                            && m_playerPosition == m_obstacles.First().m_xPosition) 
+                            && m_playerPosition == m_obstacles[i].m_xPosition) 
                     {
                         Console.WriteLine("Collision Occurred!");
                         m_gameEnded = true;
+                        break;
                     }
                 }
 
-                if (m_obstacleInputTapeReadHead == MAXIMUM_OBSTACLE_TAPE_LENGTH) // kinda bung logic but eh... 
+                if (m_gameEnded) 
+                { 
+                    break; 
+                }
+
+                if (m_obstacleInputTapeReadHead == MAXIMUM_OBSTACLE_TAPE_LENGTH && m_obstacles.Count == 0) 
                 {
                     Console.WriteLine("Game Over! You Win!");
                 }
-
                 currentGameTick++;
                 Thread.Sleep(REFRESH_RATE);
                 Console.Clear();
