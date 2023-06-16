@@ -2,8 +2,10 @@
 
 class Program
 {
-    private const char PLAYER_CHARACTER = '\u2588';
-    private const char OBSTACLE_CHARACTER = '\u2580';
+    private const char PLAYER_SYMBOL = '\u2588';
+    private const int PLAYER_STARTING_POSTITION = 3;
+    private const char OBSTACLE_SYMBOL = '\u2580';
+    private const int MAXIMUM_OBSTACLE_TAPE_LENGTH = 240;
     private const int HEIGHT = 15;
     private const int WIDTH = 7;
     private const int REFRESH_RATE = 16; // ~60fps
@@ -94,7 +96,7 @@ class Program
                         {
                             m_obstacles[i].m_firstSpawn = false;
                             m_obstacles[i].m_yPosition++;
-                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = OBSTACLE_CHARACTER;
+                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = OBSTACLE_SYMBOL;
                         }
                         else if (m_obstacles[i].m_yPosition == HEIGHT - 1)
                         {
@@ -105,7 +107,7 @@ class Program
                         {
                             m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = ' ';
                             m_obstacles[i].m_yPosition++;
-                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = OBSTACLE_CHARACTER;
+                            m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = OBSTACLE_SYMBOL;
                         }
                     }
                 }
@@ -124,19 +126,22 @@ class Program
                     builder.Clear();
                 }
 
-                m_playerLine[m_playerPosition] = PLAYER_CHARACTER;
+                m_playerLine[m_playerPosition] = PLAYER_SYMBOL;
                 Console.WriteLine("|-------|");
                 Console.WriteLine("|" + string.Concat(m_playerLine)+ "|");
 
                 // Game End State
-                if (m_obstacles.First().m_yPosition == HEIGHT - 1
-                        && m_playerPosition == m_obstacles.First().m_xPosition) 
+                for (int i = 0; i < m_obstacles.Count; i++) 
                 {
-                    Console.WriteLine("Collision Occurred!");
-                    m_gameEnded = true;
+                    if (m_obstacles[i].m_yPosition == HEIGHT - 1
+                            && m_playerPosition == m_obstacles.First().m_xPosition) 
+                    {
+                        Console.WriteLine("Collision Occurred!");
+                        m_gameEnded = true;
+                    }
                 }
 
-                if (m_obstacleInputTapeReadHead == 240) // kinda bung logic but eh... 
+                if (m_obstacleInputTapeReadHead == MAXIMUM_OBSTACLE_TAPE_LENGTH) // kinda bung logic but eh... 
                 {
                     Console.WriteLine("Game Over! You Win!");
                 }
@@ -175,10 +180,9 @@ class Program
 
         int obstacleCooldown = 0;
 
-        // 240 to set the max game time to 1 minute
-        for (int i = 0; i < 240; i++)
+        for (int i = 0; i < MAXIMUM_OBSTACLE_TAPE_LENGTH; i++)
         {
-            bool[] row = new bool[7];
+            bool[] row = new bool[WIDTH];
             if (obstacleCooldown <= 0)
             {
                 int obstacleCount = rng.Next(1, 4); // Up to 3 obstacles per line
@@ -187,7 +191,7 @@ class Program
                     int obstaclePos;
                     do
                     {
-                        obstaclePos = rng.Next(7);
+                        obstaclePos = rng.Next(WIDTH);
                     } while (row[obstaclePos]); // Ensure we don't overwrite an existing obstacle
 
                     row[obstaclePos] = true;
