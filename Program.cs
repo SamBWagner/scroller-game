@@ -90,7 +90,7 @@ class Program
                     }
 
                     // Obstacle management
-                    for (int i = 0; i < m_obstacles.Count; i++) 
+                    for (int i = m_obstacles.Count - 1; i >= 0; i--) 
                     {
                         if (m_obstacles[i].m_firstSpawn)
                         {
@@ -101,7 +101,7 @@ class Program
                         else if (m_obstacles[i].m_yPosition == HEIGHT - 1)
                         {
                             m_gameWorld[m_obstacles[i].m_yPosition, m_obstacles[i].m_xPosition] = ' ';
-                            m_obstacles.Remove(m_obstacles[i]);
+                            m_obstacles.RemoveAt(i);
                         }
                         else
                         {
