@@ -76,15 +76,18 @@ class Program
                 if (ShouldUpdateGameWorld(currentGameTick))
                 {
                     // Obstacle Insertion
-                    for (int i = 0; i < m_obstacleInputTape[m_obstacleInputTapeReadHead].Length; i++)
+                    if (m_obstacleInputTapeReadHead < m_obstacleInputTape.Count) 
                     {
-                        if (m_obstacleInputTape[m_obstacleInputTapeReadHead][i])
+                        for (int i = 0; i < m_obstacleInputTape[m_obstacleInputTapeReadHead].Length; i++)
                         {
-                            m_obstacles.Add(new Obstacle(i));
+                            if (m_obstacleInputTape[m_obstacleInputTapeReadHead][i])
+                            {
+                                m_obstacles.Add(new Obstacle(i));
+                            }
                         }
                     }
 
-                    if (m_obstacleInputTape.Count > 0)
+                    if (m_obstacleInputTapeReadHead < m_obstacleInputTape.Count)
                     {
                         m_obstacleInputTapeReadHead++;
                     }
