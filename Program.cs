@@ -9,6 +9,9 @@ class Program
     private const int HEIGHT = 15;
     private const int WIDTH = 7;
     private const int REFRESH_RATE = 16; // ~60fps
+    private const ConsoleKey QUIT_KEY = ConsoleKey.Q;
+    private const ConsoleKey LEFT_KEY = ConsoleKey.H;
+    private const ConsoleKey RIGHT_KEY = ConsoleKey.L;
     
     private static bool m_gameEnded;
     private static char[,] m_gameWorld = new char[HEIGHT,WIDTH]
@@ -31,7 +34,7 @@ class Program
     };
 
     private static char[] m_playerLine = new char[WIDTH] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
-    private static int m_playerPosition = 3;
+    private static int m_playerPosition = PLAYER_STARTING_POSTITION;
     private static ConsoleKeyInfo m_playersKeyPressedInfo;
     
     private static List<bool[]> m_obstacleInputTape = new();
@@ -52,7 +55,7 @@ class Program
 
         void WatchKeys()
         {
-            while (m_playersKeyPressedInfo.Key != ConsoleKey.Q && !m_gameEnded)
+            while (m_playersKeyPressedInfo.Key != QUIT_KEY && !m_gameEnded)
             {
                 m_playersKeyPressedInfo = Console.ReadKey(true);
             }
@@ -60,13 +63,13 @@ class Program
 
         void GameLoop()
         {
-            while (m_playersKeyPressedInfo.Key != ConsoleKey.Q && !m_gameEnded)
+            while (m_playersKeyPressedInfo.Key != QUIT_KEY && !m_gameEnded)
             {
-                if (m_playersKeyPressedInfo.Key == ConsoleKey.H && m_playerPosition != 0) {
+                if (m_playersKeyPressedInfo.Key == LEFT_KEY && m_playerPosition != 0) {
                     m_playerLine[m_playerPosition] = ' ';
                     m_playerPosition--;
                 }
-                else if (m_playersKeyPressedInfo.Key == ConsoleKey.L && m_playerPosition != 6)
+                else if (m_playersKeyPressedInfo.Key == RIGHT_KEY && m_playerPosition != 6)
                 {
                     m_playerLine[m_playerPosition] = ' ';
                     m_playerPosition++;
