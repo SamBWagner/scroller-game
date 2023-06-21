@@ -72,7 +72,7 @@ public class Game
                     break; 
                 }
 
-                if (entityManager.LevelLost())
+                if (entityManager.PlayerObstacleCollision(HEIGHT))
                 {
                     Console.WriteLine("Game Over! You Lose!");
                     break;

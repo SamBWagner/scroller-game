@@ -17,7 +17,8 @@ public class EntityManager
         m_obstacles = new List<Obstacle>();
         m_playerPosition = playerStartingPosition;
     }
-    
+
+
     private List<bool[]> GenerateLevel(int levelLength, int levelWidth)
     {
         Random rng = new();
@@ -117,11 +118,11 @@ public class EntityManager
         return m_currentLevelRow == m_level.Count && m_obstacles.Count == 0;
     }
     
-    public bool LevelLost()
+    public bool PlayerObstacleCollision(int gameAreasHeight)
     {
         for (int i = 0; i < m_obstacles.Count; i++) 
         {
-            if (m_obstacles[i].m_yPosition == 15 - 1
+            if (m_obstacles[i].m_yPosition == gameAreasHeight - 1
                 && m_playerPosition == m_obstacles[i].m_xPosition) 
             {
                 return true;
