@@ -1,17 +1,12 @@
-using System.Text;
-
 namespace scroller_game;
 
 public class Game
 {
-    // Parts of the Game
     private const int HEIGHT = 15;
     private const int WIDTH = 7;
     private const int REFRESH_RATE = 16; // ~60fps
     private const int LEVEL_LENGTH = 240;
-    private const ConsoleKey QUIT_KEY = ConsoleKey.Q;
-    private const ConsoleKey LEFT_KEY = ConsoleKey.H;
-    private const ConsoleKey RIGHT_KEY = ConsoleKey.L;
+    private const int PLAYER_STARTING_POSITION = 3; 
     
     char[,] m_gameWorld = new char[HEIGHT,WIDTH]
     {
@@ -31,24 +26,18 @@ public class Game
         {' ', ' ', ' ', ' ', ' ', ' ', ' '},
         {' ', ' ', ' ', ' ', ' ', ' ', ' '}
     };
+    char[] m_playersArea = new char[WIDTH] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
     bool m_gameEnded;
     ConsoleKeyInfo m_playersKeyPressedInfo;
-    
-    //Players stuff?
-    const char PLAYER_SYMBOL = '\u2588';
-    const int PLAYER_STARTING_POSITION = 3; 
-    char[] m_playerLine = new char[WIDTH] {' ', ' ', ' ', ' ', ' ', ' ', ' '};
-    int m_playerPosition;
-   
-    public Game()
-    {
-        m_playerPosition = PLAYER_STARTING_POSITION;
-    }
 
     public void Run()
     {
         int currentGameTick = 0;
-        ObstacleManager obstacleManager = new(LEVEL_LENGTH);
+        EntityManager entityManager = new(
+            levelLength: LEVEL_LENGTH, 
+            levelWidth: WIDTH, 
+            playerStartingPosition: PLAYER_STARTING_POSITION);
+        Drawer drawer = new(HEIGHT, WIDTH);
 
         Thread watchKeyThread = new(WatchKeys);
         Thread gameThread = new(GameLoop);
@@ -59,7 +48,7 @@ public class Game
 
         void WatchKeys()
         {
-            while (m_playersKeyPressedInfo.Key != QUIT_KEY && !m_gameEnded)
+            while (m_playersKeyPressedInfo.Key != Config.QuitKey && !m_gameEnded)
             {
                 m_playersKeyPressedInfo = Console.ReadKey(true);
             }
@@ -67,63 +56,32 @@ public class Game
 
         void GameLoop()
         {
-            while (m_playersKeyPressedInfo.Key != QUIT_KEY && !m_gameEnded)
+            while (m_playersKeyPressedInfo.Key != Config.QuitKey && !m_gameEnded)
             {
-                if (m_playersKeyPressedInfo.Key == LEFT_KEY && m_playerPosition != 0) {
-                    m_playerLine[m_playerPosition] = ' ';
-                    m_playerPosition--;
-                }
-                else if (m_playersKeyPressedInfo.Key == RIGHT_KEY && m_playerPosition != 6)
-                {
-                    m_playerLine[m_playerPosition] = ' ';
-                    m_playerPosition++;
-                }
+                entityManager.UpdatePlayerPosition(m_playersArea, m_playersKeyPressedInfo.Key);
                 m_playersKeyPressedInfo = new ConsoleKeyInfo();
-
                 if (ShouldUpdateGameWorld(currentGameTick))
                 {
-                    obstacleManager.AddNextLineOfObstacles();
-                    obstacleManager.UpdateObstacles(ref m_gameWorld, HEIGHT);
+                    entityManager.AddNextLineOfObstacles();
+                    entityManager.UpdateObstacles(m_gameWorld, HEIGHT);
                 }
-
-                // Gameworld Drawing Logic
-                StringBuilder builder = new();
-                for (int i = 0; i < HEIGHT; i++)
-                {
-                    builder.Append('|');
-                    for (int j = 0; j < WIDTH; j++)
-                    {
-                        builder.Append(m_gameWorld[i,j]);
-                    }
-                    builder.Append('|');
-                    Console.WriteLine(builder);
-                    builder.Clear();
-                }
-
-                m_playerLine[m_playerPosition] = PLAYER_SYMBOL;
-                Console.WriteLine("|-------|");
-                Console.WriteLine("|" + string.Concat(m_playerLine)+ "|");
-
-                // Game End State
-                for (int i = 0; i < obstacleManager.m_obstacles.Count; i++) 
-                {
-                    if (obstacleManager.m_obstacles[i].m_yPosition == HEIGHT - 1
-                            && m_playerPosition == obstacleManager.m_obstacles[i].m_xPosition) 
-                    {
-                        Console.WriteLine("Collision Occurred!");
-                        m_gameEnded = true;
-                        break;
-                    }
-                }
+                drawer.Draw(m_gameWorld, m_playersArea);
 
                 if (m_gameEnded) 
                 { 
                     break; 
                 }
 
-                if (obstacleManager.CompletedLevel()) 
+                if (entityManager.LevelLost())
+                {
+                    Console.WriteLine("Game Over! You Lose!");
+                    break;
+                }
+
+                if (entityManager.LevelWon()) 
                 {
                     Console.WriteLine("Game Over! You Win!");
+                    break;
                 }
                 currentGameTick++;
                 Thread.Sleep(REFRESH_RATE);
